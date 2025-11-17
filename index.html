@@ -1,0 +1,1287 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Онлайн дневник</title>
+    <style>
+        :root {
+            --primary-color: #4a6fa5;
+            --secondary-color: #6b8cbc;
+            --light-color: #f5f7fa;
+            --dark-color: #2c3e50;
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+            --lesson-color: #e8f4fd;
+            --text-color: #333;
+            --bg-color: #f5f7fa;
+            --card-bg: white;
+            --border-color: #ddd;
+        }
+
+        .dark-theme {
+            --primary-color: #5d7cb0;
+            --secondary-color: #7a9bcc;
+            --light-color: #2c3e50;
+            --dark-color: #ecf0f1;
+            --success-color: #27ae60;
+            --warning-color: #e67e22;
+            --lesson-color: #34495e;
+            --text-color: #ecf0f1;
+            --bg-color: #2c3e50;
+            --card-bg: #34495e;
+            --border-color: #4a6572;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 10px; /* Изменено: уменьшен padding для мобильных */
+        }
+        
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 0.8rem; /* Изменено: уменьшен padding для мобильных */
+            border-radius: 8px 8px 0 0;
+            display: flex;
+            flex-direction: column; /* Добавлено: для мобильных */
+            gap: 10px; /* Добавлено: для мобильных */
+        }
+        
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        h1 {
+            font-size: 1.5rem; /* Изменено: уменьшен размер шрифта для мобильных */
+        }
+        
+        .header-controls {
+            display: flex;
+            gap: 5px; /* Изменено: уменьшен gap для мобильных */
+            align-items: center;
+        }
+        
+        .nav-buttons {
+            display: flex;
+            gap: 5px; /* Изменено: уменьшен gap для мобильных */
+            flex-wrap: wrap; /* Добавлено: для мобильных */
+            justify-content: center; /* Добавлено: для мобильных */
+        }
+        
+        button {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 6px 10px; /* Изменено: уменьшен padding для мобильных */
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-size: 0.9rem; /* Добавлено: уменьшен размер шрифта для мобильных */
+        }
+        
+        button:hover {
+            background-color: var(--dark-color);
+        }
+        
+        .theme-toggle {
+            background-color: transparent;
+            border: 1px solid white;
+            white-space: nowrap; /* Добавлено: чтобы текст не переносился */
+        }
+        
+        .week-display {
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            padding: 10px; /* Изменено: уменьшен padding для мобильных */
+            text-align: center;
+            font-weight: bold;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.9rem; /* Добавлено: уменьшен размер шрифта для мобильных */
+        }
+        
+        .days-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px; /* Изменено: уменьшен gap для мобильных */
+            margin-top: 10px; /* Изменено: уменьшен margin для мобильных */
+        }
+        
+        .day {
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .day-header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 8px 10px; /* Изменено: уменьшен padding для мобильных */
+            font-weight: bold;
+            font-size: 0.9rem; /* Добавлено: уменьшен размер шрифта для мобильных */
+        }
+        
+        .holiday .day-header {
+            background-color: var(--warning-color);
+        }
+        
+        .lessons-container {
+            padding: 8px; /* Изменено: уменьшен padding для мобильных */
+        }
+        
+        .lesson-row {
+            display: flex;
+            border-bottom: 1px solid var(--border-color);
+            padding: 6px 0; /* Изменено: уменьшен padding для мобильных */
+            flex-direction: column; /* Добавлено: для мобильных - вертикальное расположение */
+            gap: 5px; /* Добавлено: для мобильных */
+        }
+        
+        .lesson-row:last-child {
+            border-bottom: none;
+        }
+        
+        .lesson-number {
+            width: 100%; /* Изменено: для мобильных */
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            font-size: 0.9rem; /* Добавлено: уменьшен размер шрифта для мобильных */
+        }
+        
+        .lesson-name {
+            width: 100%; /* Изменено: для мобильных */
+            padding: 0;
+            display: flex;
+            align-items: center;
+            font-size: 0.9rem; /* Добавлено: уменьшен размер шрифта для мобильных */
+        }
+        
+        .homework-input {
+            width: 100%; /* Изменено: для мобильных */
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 6px; /* Изменено: уменьшен padding для мобильных */
+            resize: vertical;
+            font-size: 0.9rem; /* Добавлено: уменьшен размер шрифта для мобильных */
+            min-height: 60px; /* Изменено: увеличен min-height для мобильных */
+            background-color: var(--card-bg);
+            color: var(--text-color);
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 100;
+            justify-content: center;
+            align-items: flex-start; /* Изменено: для мобильных - выравнивание по верху */
+            padding: 10px; /* Добавлено: для мобильных */
+            overflow-y: auto; /* Добавлено: для мобильных */
+        }
+        
+        .modal-content {
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            padding: 15px; /* Изменено: уменьшен padding для мобильных */
+            border-radius: 8px;
+            width: 100%; /* Изменено: для мобильных */
+            max-width: 100%; /* Изменено: для мобильных */
+            max-height: 90vh; /* Изменено: для мобильных */
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px; /* Изменено: уменьшен margin для мобильных */
+        }
+        
+        .close {
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        .form-group {
+            margin-bottom: 10px; /* Изменено: уменьшен margin для мобильных */
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            font-size: 0.9rem; /* Добавлено: уменьшен размер шрифта для мобильных */
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 6px; /* Изменено: уменьшен padding для мобильных */
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            font-size: 0.9rem; /* Добавлено: уменьшен размер шрифта для мобильных */
+        }
+        
+        .holiday-item, .schedule-period {
+            display: flex;
+            flex-direction: column; /* Добавлено: для мобильных - вертикальное расположение */
+            gap: 5px; /* Изменено: уменьшен gap для мобильных */
+            margin-bottom: 10px; /* Изменено: уменьшен margin для мобильных */
+        }
+        
+        .holiday-item input, .schedule-period input {
+            flex: 1;
+        }
+        
+        .remove-btn {
+            background-color: #e74c3c;
+            padding: 5px 10px;
+        }
+        
+        .add-btn {
+            background-color: var(--success-color);
+            margin-top: 10px;
+        }
+        
+        .save-btn {
+            background-color: var(--success-color);
+            width: 100%;
+            padding: 10px;
+            margin-top: 15px;
+        }
+        
+        .save-btn.saving {
+            background-color: #95a5a6;
+        }
+        
+        .save-btn.saved {
+            background-color: var(--success-color);
+            animation: pulse 0.5s;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .current-day {
+            border-left: 4px solid var(--success-color);
+        }
+        
+        .tabs {
+            display: flex;
+            margin-bottom: 10px; /* Изменено: уменьшен margin для мобильных */
+            border-bottom: 1px solid var(--border-color);
+            flex-wrap: wrap; /* Добавлено: для мобильных */
+        }
+        
+        .tab {
+            padding: 8px 10px; /* Изменено: уменьшен padding для мобильных */
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            font-size: 0.9rem; /* Добавлено: уменьшен размер шрифта для мобильных */
+            flex: 1; /* Добавлено: для мобильных - равномерное распределение */
+            min-width: 80px; /* Добавлено: для мобильных - минимальная ширина */
+            text-align: center; /* Добавлено: для мобильных */
+        }
+        
+        .tab.active {
+            border-bottom: 2px solid var(--primary-color);
+            font-weight: bold;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .schedule-day {
+            margin-bottom: 10px; /* Изменено: уменьшен margin для мобильных */
+            padding: 8px; /* Изменено: уменьшен padding для мобильных */
+            background-color: var(--lesson-color);
+            border-radius: 4px;
+        }
+        
+        .schedule-day-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 0.9rem; /* Добавлено: уменьшен размер шрифта для мобильных */
+        }
+        
+        .lesson-input {
+            display: flex;
+            flex-direction: column; /* Добавлено: для мобильных - вертикальное расположение */
+            gap: 5px; /* Изменено: уменьшен gap для мобильных */
+            margin-bottom: 5px;
+        }
+        
+        .lesson-input input, .lesson-input select {
+            flex: 1;
+        }
+        
+        .password-prompt {
+            text-align: center;
+        }
+        
+        .password-input {
+            margin: 10px 0; /* Изменено: уменьшен margin для мобильных */
+        }
+        
+        .password-error {
+            color: #e74c3c;
+            margin-top: 10px;
+            display: none;
+        }
+        
+        /* Медиа-запрос для планшетов и небольших экранов */
+        @media (min-width: 481px) and (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            header {
+                padding: 1rem;
+            }
+            
+            .lesson-row {
+                flex-direction: row; /* Возвращаем горизонтальное расположение для планшетов */
+            }
+            
+            .lesson-number {
+                width: 40px;
+            }
+            
+            .lesson-name {
+                width: auto;
+                flex: 1;
+                padding: 0 10px;
+            }
+            
+            .homework-input {
+                width: auto;
+                flex: 2;
+                min-height: 40px;
+            }
+            
+            .holiday-item, .schedule-period {
+                flex-direction: row; /* Возвращаем горизонтальное расположение для планшетов */
+            }
+            
+            .lesson-input {
+                flex-direction: row; /* Возвращаем горизонтальное расположение для планшетов */
+            }
+        }
+        
+        /* Медиа-запрос для десктопов */
+        @media (min-width: 769px) {
+            header {
+                flex-direction: row; /* Возвращаем горизонтальное расположение для десктопов */
+                justify-content: space-between;
+                align-items: center;
+            }
+            
+            .lesson-row {
+                flex-direction: row; /* Возвращаем горизонтальное расположение для десктопов */
+            }
+            
+            .lesson-number {
+                width: 40px;
+            }
+            
+            .lesson-name {
+                width: auto;
+                flex: 1;
+                padding: 0 10px;
+            }
+            
+            .homework-input {
+                width: auto;
+                flex: 2;
+                min-height: 40px;
+            }
+            
+            .holiday-item, .schedule-period {
+                flex-direction: row; /* Возвращаем горизонтальное расположение для десктопов */
+            }
+            
+            .lesson-input {
+                flex-direction: row; /* Возвращаем горизонтальное расположение для десктопов */
+            }
+            
+            .modal-content {
+                width: 90%;
+                max-width: 800px;
+            }
+        }
+        
+        /* Дополнительные стили для очень маленьких экранов */
+        @media (max-width: 360px) {
+            h1 {
+                font-size: 1.2rem;
+            }
+            
+            button {
+                padding: 5px 8px;
+                font-size: 0.8rem;
+            }
+            
+            .tab {
+                padding: 6px 8px;
+                font-size: 0.8rem;
+                min-width: 70px;
+            }
+        }
+    </style>
+</head>
+<body class="light-theme">
+    <div class="container">
+        <header>
+            <!-- Изменено: добавлена структура header-top для лучшего управления на мобильных -->
+            <div class="header-top">
+                <h1>Онлайн дневник</h1>
+                <div class="header-controls">
+                    <button id="theme-toggle" class="theme-toggle">Тёмная тема</button>
+                </div>
+            </div>
+            <div class="nav-buttons">
+                <button id="prev-week">← Предыдущая неделя</button>
+                <button id="settings-btn">Настройки</button>
+                <button id="next-week">Следующая неделя →</button>
+            </div>
+        </header>
+        
+        <div class="week-display" id="week-range">
+            <!-- Здесь будет отображаться диапазон дат недели -->
+        </div>
+        
+        <div class="days-container" id="days-container">
+            <!-- Дни недели будут добавляться динамически -->
+        </div>
+    </div>
+    
+    <!-- Модальное окно ввода пароля -->
+    <div class="modal" id="password-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Введите пароль</h2>
+                <span class="close" id="close-password">&times;</span>
+            </div>
+            <div class="password-prompt">
+                <p>Для доступа к настройкам введите мастер-пароль</p>
+                <input type="password" class="password-input" id="password-input" placeholder="Мастер-пароль">
+                <div class="password-error" id="password-error">Неверный пароль. Попробуйте снова.</div>
+                <button id="submit-password">Войти</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Модальное окно настроек -->
+    <div class="modal" id="settings-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Настройки дневника</h2>
+                <span class="close" id="close-settings">&times;</span>
+            </div>
+            
+            <div class="tabs">
+                <div class="tab active" data-tab="schedule">Расписание</div>
+                <div class="tab" data-tab="holidays">Каникулы</div>
+                <div class="tab" data-tab="general">Общие</div>
+            </div>
+            
+            <form id="settings-form">
+                <!-- Вкладка расписания -->
+                <div class="tab-content active" id="schedule-tab">
+                    <div class="form-group">
+                        <label>Расписание на первое полугодие</label>
+                        <div id="schedule-first-half">
+                            <!-- Поля для расписания первого полугодия -->
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Расписание на второе полугодие</label>
+                        <div id="schedule-second-half">
+                            <!-- Поля для расписания второго полугодия -->
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="semester-break-date">Дата начала второго полугодия</label>
+                        <input type="date" id="semester-break-date">
+                    </div>
+                </div>
+                
+                <!-- Вкладка каникул -->
+                <div class="tab-content" id="holidays-tab">
+                    <div class="form-group">
+                        <label for="schedule-start">Начало учебного года</label>
+                        <input type="date" id="schedule-start">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="schedule-end">Конец учебного года</label>
+                        <input type="date" id="schedule-end">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Периоды каникул (используйте год начала учебного года для дат до августа включительно)</label>
+                        <div id="holidays-container">
+                            <!-- Поля для каникул будут добавляться динамически -->
+                        </div>
+                        <button type="button" class="add-btn" id="add-holiday">+ Добавить каникулы</button>
+                    </div>
+                </div>
+                
+                <!-- Общие настройки -->
+                <div class="tab-content" id="general-tab">
+                    <div class="form-group">
+                        <label for="max-lessons">Максимальное количество уроков в день</label>
+                        <input type="number" id="max-lessons" min="1" max="10" value="8">
+                    </div>
+                </div>
+                
+                <button type="submit" class="save-btn" id="save-settings">Сохранить настройки</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Основные переменные
+        let currentWeekStart = new Date();
+        let settings = {
+            scheduleStart: '',
+            scheduleEnd: '',
+            semesterBreakDate: '',
+            holidays: [],
+            maxLessons: 8,
+            theme: 'light',
+            scheduleFirstHalf: {
+                monday: [],
+                tuesday: [],
+                wednesday: [],
+                thursday: [],
+                friday: []
+            },
+            scheduleSecondHalf: {
+                monday: [],
+                tuesday: [],
+                wednesday: [],
+                thursday: [],
+                friday: []
+            }
+        };
+        
+        // Элементы DOM
+        const weekRangeElement = document.getElementById('week-range');
+        const daysContainer = document.getElementById('days-container');
+        const prevWeekBtn = document.getElementById('prev-week');
+        const nextWeekBtn = document.getElementById('next-week');
+        const settingsBtn = document.getElementById('settings-btn');
+        const settingsModal = document.getElementById('settings-modal');
+        const passwordModal = document.getElementById('password-modal');
+        const closeSettings = document.getElementById('close-settings');
+        const closePassword = document.getElementById('close-password');
+        const settingsForm = document.getElementById('settings-form');
+        const holidaysContainer = document.getElementById('holidays-container');
+        const addHolidayBtn = document.getElementById('add-holiday');
+        const scheduleFirstHalfContainer = document.getElementById('schedule-first-half');
+        const scheduleSecondHalfContainer = document.getElementById('schedule-second-half');
+        const tabs = document.querySelectorAll('.tab');
+        const passwordInput = document.getElementById('password-input');
+        const submitPassword = document.getElementById('submit-password');
+        const passwordError = document.getElementById('password-error');
+        const saveSettingsBtn = document.getElementById('save-settings');
+        const themeToggle = document.getElementById('theme-toggle');
+        
+        // Дни недели для отображения (только рабочие дни)
+        const dayNames = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница'];
+        const dayKeys = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
+        
+        // Предметы с подгруппами
+        const subjectsWithSubgroups = {
+            'Трудовое обучение': 2,
+            'Иностранный язык': 3
+        };
+        
+        // Мастер-пароль
+        const MASTER_PASSWORD = '0245';
+        
+        // Инициализация при загрузке страницы
+        document.addEventListener('DOMContentLoaded', function() {
+            loadSettings();
+            applyTheme();
+            setCurrentWeekToMonday();
+            renderWeek();
+            initScheduleInputs();
+            
+            // Назначение обработчиков событий
+            prevWeekBtn.addEventListener('click', goToPreviousWeek);
+            nextWeekBtn.addEventListener('click', goToNextWeek);
+            settingsBtn.addEventListener('click', showPasswordModal);
+            closeSettings.addEventListener('click', closeSettingsModal);
+            closePassword.addEventListener('click', closePasswordModal);
+            settingsForm.addEventListener('submit', saveSettings);
+            addHolidayBtn.addEventListener('click', addHolidayField);
+            submitPassword.addEventListener('click', checkPassword);
+            passwordInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    checkPassword();
+                }
+            });
+            themeToggle.addEventListener('click', toggleTheme);
+            
+            // Переключение вкладок
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const tabId = this.getAttribute('data-tab');
+                    switchTab(tabId);
+                });
+            });
+            
+            // Закрытие модальных окон при клике вне их
+            window.addEventListener('click', function(event) {
+                if (event.target === settingsModal) {
+                    closeSettingsModal();
+                }
+                if (event.target === passwordModal) {
+                    closePasswordModal();
+                }
+            });
+        });
+        
+        // Функции для работы с неделями
+        function setCurrentWeekToMonday() {
+            const today = new Date();
+            const day = today.getDay();
+            const diff = today.getDate() - day + (day === 0 ? -6 : 1); // Корректировка для воскресенья
+            currentWeekStart = new Date(today.setDate(diff));
+            currentWeekStart.setHours(0, 0, 0, 0);
+        }
+        
+        function getWeekDates(startDate) {
+            const dates = [];
+            for (let i = 0; i < 5; i++) { // Только 5 рабочих дней
+                const date = new Date(startDate);
+                date.setDate(startDate.getDate() + i);
+                dates.push(date);
+            }
+            return dates;
+        }
+        
+        function formatDate(date) {
+            const options = { day: 'numeric', month: 'long', year: 'numeric' };
+            return date.toLocaleDateString('ru-RU', options);
+        }
+        
+        function formatDateShort(date) {
+            const options = { day: 'numeric', month: 'short' };
+            return date.toLocaleDateString('ru-RU', options);
+        }
+        
+        function isDateInHolidays(date) {
+            return settings.holidays.some(holiday => {
+                const start = new Date(holiday.start);
+                const end = new Date(holiday.end);
+                return date >= start && date <= end;
+            });
+        }
+        
+        function isWeekInHolidays(weekStart) {
+            const weekDates = getWeekDates(weekStart);
+            return weekDates.some(date => isDateInHolidays(date));
+        }
+        
+        function goToPreviousWeek() {
+            let newWeekStart = new Date(currentWeekStart);
+            newWeekStart.setDate(currentWeekStart.getDate() - 7);
+            
+            // Пропускаем недели с каникулами
+            while (isWeekInHolidays(newWeekStart)) {
+                newWeekStart.setDate(newWeekStart.getDate() - 7);
+            }
+            
+            currentWeekStart = newWeekStart;
+            renderWeek();
+        }
+        
+        function goToNextWeek() {
+            let newWeekStart = new Date(currentWeekStart);
+            newWeekStart.setDate(currentWeekStart.getDate() + 7);
+            
+            // Пропускаем недели с каникулами
+            while (isWeekInHolidays(newWeekStart)) {
+                newWeekStart.setDate(newWeekStart.getDate() + 7);
+            }
+            
+            currentWeekStart = newWeekStart;
+            renderWeek();
+        }
+        
+        // Функции для работы с расписанием
+        function getScheduleForDate(date) {
+            if (!settings.semesterBreakDate) return [];
+            
+            const semesterBreak = new Date(settings.semesterBreakDate);
+            const dayOfWeek = dayKeys[date.getDay() === 0 ? 6 : date.getDay() - 1]; // Преобразование в наш формат
+            
+            if (date < semesterBreak) {
+                return settings.scheduleFirstHalf[dayOfWeek] || [];
+            } else {
+                return settings.scheduleSecondHalf[dayOfWeek] || [];
+            }
+        }
+        
+        // Функции для рендеринга
+        function renderWeek() {
+            const weekDates = getWeekDates(currentWeekStart);
+            const startDate = weekDates[0];
+            const endDate = weekDates[4]; // Последний день - пятница
+            
+            // Обновляем отображение диапазона недели
+            weekRangeElement.textContent = `${formatDate(startDate)} - ${formatDate(endDate)}`;
+            
+            // Очищаем контейнер дней
+            daysContainer.innerHTML = '';
+            
+            // Добавляем дни недели
+            weekDates.forEach((date, index) => {
+                const dayElement = document.createElement('div');
+                dayElement.className = 'day';
+                
+                // Проверяем, является ли день каникулами
+                if (isDateInHolidays(date)) {
+                    dayElement.classList.add('holiday');
+                }
+                
+                // Проверяем, является ли день текущим
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                if (date.getTime() === today.getTime()) {
+                    dayElement.classList.add('current-day');
+                }
+                
+                const dayHeader = document.createElement('div');
+                dayHeader.className = 'day-header';
+                dayHeader.textContent = `${dayNames[index]}, ${formatDateShort(date)}`;
+                
+                const lessonsContainer = document.createElement('div');
+                lessonsContainer.className = 'lessons-container';
+                
+                // Получаем расписание для этого дня
+                const schedule = getScheduleForDate(date);
+                
+                // Создаем строки для уроков
+                for (let i = 0; i < settings.maxLessons; i++) {
+                    const lessonRow = document.createElement('div');
+                    lessonRow.className = 'lesson-row';
+                    
+                    const lessonNumber = document.createElement('div');
+                    lessonNumber.className = 'lesson-number';
+                    lessonNumber.textContent = `Урок ${i + 1}`;
+                    
+                    const lessonName = document.createElement('div');
+                    lessonName.className = 'lesson-name';
+                    
+                    // Обрабатываем предметы с подгруппами
+                    let lessonText = schedule[i] || '';
+                    if (lessonText && typeof lessonText === 'object') {
+                        lessonName.textContent = `${lessonText.subject}${lessonText.subgroup ? ` (${lessonText.subgroup} группа)` : ''}`;
+                    } else {
+                        lessonName.textContent = lessonText;
+                    }
+                    
+                    const homeworkInput = document.createElement('textarea');
+                    homeworkInput.className = 'homework-input';
+                    homeworkInput.placeholder = 'Домашнее задание...';
+                    
+                    // Загружаем сохраненное домашнее задание
+                    const dateKey = date.toISOString().split('T')[0];
+                    const lessonKey = `${dateKey}-lesson-${i}`;
+                    homeworkInput.value = loadHomework(lessonKey) || '';
+                    
+                    // Сохраняем домашнее задание при изменении
+                    homeworkInput.addEventListener('input', function() {
+                        saveHomework(lessonKey, homeworkInput.value);
+                    });
+                    
+                    lessonRow.appendChild(lessonNumber);
+                    lessonRow.appendChild(lessonName);
+                    lessonRow.appendChild(homeworkInput);
+                    lessonsContainer.appendChild(lessonRow);
+                }
+                
+                dayElement.appendChild(dayHeader);
+                dayElement.appendChild(lessonsContainer);
+                daysContainer.appendChild(dayElement);
+            });
+        }
+        
+        // Функции для работы с настройками
+        function showPasswordModal() {
+            passwordModal.style.display = 'flex';
+            passwordInput.value = '';
+            passwordError.style.display = 'none';
+            passwordInput.focus();
+        }
+        
+        function closePasswordModal() {
+            passwordModal.style.display = 'none';
+        }
+        
+        function checkPassword() {
+            if (passwordInput.value === MASTER_PASSWORD) {
+                closePasswordModal();
+                openSettings();
+            } else {
+                passwordError.style.display = 'block';
+                passwordInput.value = '';
+                passwordInput.focus();
+            }
+        }
+        
+        function openSettings() {
+            // Заполняем форму текущими настройками
+            document.getElementById('schedule-start').value = settings.scheduleStart;
+            document.getElementById('schedule-end').value = settings.scheduleEnd;
+            document.getElementById('semester-break-date').value = settings.semesterBreakDate;
+            document.getElementById('max-lessons').value = settings.maxLessons;
+            
+            // Очищаем контейнер каникул
+            holidaysContainer.innerHTML = '';
+            
+            // Добавляем поля для каникул
+            settings.holidays.forEach((holiday, index) => {
+                addHolidayField(holiday.start, holiday.end, index);
+            });
+            
+            // Если каникулов нет, добавляем одно пустое поле
+            if (settings.holidays.length === 0) {
+                addHolidayField();
+            }
+            
+            // Заполняем расписание
+            fillScheduleInputs();
+            
+            settingsModal.style.display = 'flex';
+        }
+        
+        function closeSettingsModal() {
+            settingsModal.style.display = 'none';
+        }
+        
+        function switchTab(tabId) {
+            // Деактивируем все вкладки
+            tabs.forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Активируем выбранную вкладку
+            document.querySelector(`.tab[data-tab="${tabId}"]`).classList.add('active');
+            
+            // Скрываем все содержимое вкладок
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Показываем содержимое выбранной вкладки
+            document.getElementById(`${tabId}-tab`).classList.add('active');
+        }
+        
+        function initScheduleInputs() {
+            // Создаем поля для расписания первого полугодия
+            dayNames.forEach((dayName, index) => {
+                const dayKey = dayKeys[index];
+                
+                // Для первого полугодия
+                const scheduleDayFirst = document.createElement('div');
+                scheduleDayFirst.className = 'schedule-day';
+                
+                const dayTitleFirst = document.createElement('div');
+                dayTitleFirst.className = 'schedule-day-title';
+                dayTitleFirst.textContent = dayName;
+                
+                const lessonsContainerFirst = document.createElement('div');
+                lessonsContainerFirst.className = 'lessons-container';
+                
+                // Добавляем поля для уроков
+                for (let i = 0; i < settings.maxLessons; i++) {
+                    const lessonInput = document.createElement('div');
+                    lessonInput.className = 'lesson-input';
+                    
+                    const input = document.createElement('input');
+                    input.type = 'text';
+                    input.placeholder = `Урок ${i+1}`;
+                    input.dataset.day = dayKey;
+                    input.dataset.lesson = i;
+                    input.dataset.semester = 'first';
+                    
+                    const subgroupSelect = document.createElement('select');
+                    subgroupSelect.dataset.day = dayKey;
+                    subgroupSelect.dataset.lesson = i;
+                    subgroupSelect.dataset.semester = 'first';
+                    
+                    // Добавляем опции для подгрупп
+                    const defaultOption = document.createElement('option');
+                    defaultOption.value = '';
+                    defaultOption.textContent = 'Нет подгруппы';
+                    subgroupSelect.appendChild(defaultOption);
+                    
+                    // Добавляем обработчик для определения предметов с подгруппами
+                    input.addEventListener('input', function() {
+                        updateSubgroupSelect(this, subgroupSelect);
+                    });
+                    
+                    lessonsContainerFirst.appendChild(lessonInput);
+                    lessonInput.appendChild(input);
+                    lessonInput.appendChild(subgroupSelect);
+                }
+                
+                scheduleDayFirst.appendChild(dayTitleFirst);
+                scheduleDayFirst.appendChild(lessonsContainerFirst);
+                scheduleFirstHalfContainer.appendChild(scheduleDayFirst);
+                
+                // Для второго полугодия
+                const scheduleDaySecond = document.createElement('div');
+                scheduleDaySecond.className = 'schedule-day';
+                
+                const dayTitleSecond = document.createElement('div');
+                dayTitleSecond.className = 'schedule-day-title';
+                dayTitleSecond.textContent = dayName;
+                
+                const lessonsContainerSecond = document.createElement('div');
+                lessonsContainerSecond.className = 'lessons-container';
+                
+                // Добавляем поля для уроков
+                for (let i = 0; i < settings.maxLessons; i++) {
+                    const lessonInput = document.createElement('div');
+                    lessonInput.className = 'lesson-input';
+                    
+                    const input = document.createElement('input');
+                    input.type = 'text';
+                    input.placeholder = `Урок ${i+1}`;
+                    input.dataset.day = dayKey;
+                    input.dataset.lesson = i;
+                    input.dataset.semester = 'second';
+                    
+                    const subgroupSelect = document.createElement('select');
+                    subgroupSelect.dataset.day = dayKey;
+                    subgroupSelect.dataset.lesson = i;
+                    subgroupSelect.dataset.semester = 'second';
+                    
+                    // Добавляем опции для подгрупп
+                    const defaultOption = document.createElement('option');
+                    defaultOption.value = '';
+                    defaultOption.textContent = 'Нет подгруппы';
+                    subgroupSelect.appendChild(defaultOption);
+                    
+                    // Добавляем обработчик для определения предметов с подгруппами
+                    input.addEventListener('input', function() {
+                        updateSubgroupSelect(this, subgroupSelect);
+                    });
+                    
+                    lessonsContainerSecond.appendChild(lessonInput);
+                    lessonInput.appendChild(input);
+                    lessonInput.appendChild(subgroupSelect);
+                }
+                
+                scheduleDaySecond.appendChild(dayTitleSecond);
+                scheduleDaySecond.appendChild(lessonsContainerSecond);
+                scheduleSecondHalfContainer.appendChild(scheduleDaySecond);
+            });
+        }
+        
+        function updateSubgroupSelect(inputElement, selectElement) {
+            const subject = inputElement.value.trim();
+            
+            // Очищаем селект
+            while (selectElement.children.length > 1) {
+                selectElement.removeChild(selectElement.lastChild);
+            }
+            
+            // Если предмет есть в списке предметов с подгруппами
+            if (subjectsWithSubgroups.hasOwnProperty(subject)) {
+                const subgroupsCount = subjectsWithSubgroups[subject];
+                
+                // Добавляем опции для подгрупп
+                for (let i = 1; i <= subgroupsCount; i++) {
+                    const option = document.createElement('option');
+                    option.value = i;
+                    option.textContent = `${i} группа`;
+                    selectElement.appendChild(option);
+                }
+                
+                selectElement.style.display = 'block';
+            } else {
+                selectElement.style.display = 'none';
+            }
+        }
+        
+        function fillScheduleInputs() {
+            // Заполняем расписание первого полугодия
+            dayKeys.forEach(dayKey => {
+                const lessons = settings.scheduleFirstHalf[dayKey] || [];
+                for (let i = 0; i < settings.maxLessons; i++) {
+                    const input = document.querySelector(`input[data-day="${dayKey}"][data-lesson="${i}"][data-semester="first"]`);
+                    const select = document.querySelector(`select[data-day="${dayKey}"][data-lesson="${i}"][data-semester="first"]`);
+                    
+                    if (input && select) {
+                        const lesson = lessons[i];
+                        if (lesson && typeof lesson === 'object') {
+                            input.value = lesson.subject || '';
+                            
+                            // Обновляем селект подгруппы
+                            if (lesson.subject && subjectsWithSubgroups.hasOwnProperty(lesson.subject)) {
+                                updateSubgroupSelect(input, select);
+                                select.value = lesson.subgroup || '';
+                                select.style.display = 'block';
+                            } else {
+                                select.style.display = 'none';
+                            }
+                        } else {
+                            input.value = lesson || '';
+                            select.style.display = 'none';
+                        }
+                    }
+                }
+            });
+            
+            // Заполняем расписание второго полугодия
+            dayKeys.forEach(dayKey => {
+                const lessons = settings.scheduleSecondHalf[dayKey] || [];
+                for (let i = 0; i < settings.maxLessons; i++) {
+                    const input = document.querySelector(`input[data-day="${dayKey}"][data-lesson="${i}"][data-semester="second"]`);
+                    const select = document.querySelector(`select[data-day="${dayKey}"][data-lesson="${i}"][data-semester="second"]`);
+                    
+                    if (input && select) {
+                        const lesson = lessons[i];
+                        if (lesson && typeof lesson === 'object') {
+                            input.value = lesson.subject || '';
+                            
+                            // Обновляем селект подгруппы
+                            if (lesson.subject && subjectsWithSubgroups.hasOwnProperty(lesson.subject)) {
+                                updateSubgroupSelect(input, select);
+                                select.value = lesson.subgroup || '';
+                                select.style.display = 'block';
+                            } else {
+                                select.style.display = 'none';
+                            }
+                        } else {
+                            input.value = lesson || '';
+                            select.style.display = 'none';
+                        }
+                    }
+                }
+            });
+        }
+        
+        function addHolidayField(start = '', end = '', index = null) {
+            const holidayItem = document.createElement('div');
+            holidayItem.className = 'holiday-item';
+            
+            const startInput = document.createElement('input');
+            startInput.type = 'date';
+            startInput.placeholder = 'Начало';
+            startInput.value = start;
+            
+            const endInput = document.createElement('input');
+            endInput.type = 'date';
+            endInput.placeholder = 'Конец';
+            endInput.value = end;
+            
+            const removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.className = 'remove-btn';
+            removeBtn.textContent = '×';
+            removeBtn.addEventListener('click', function() {
+                holidayItem.remove();
+            });
+            
+            holidayItem.appendChild(startInput);
+            holidayItem.appendChild(endInput);
+            holidayItem.appendChild(removeBtn);
+            
+            holidaysContainer.appendChild(holidayItem);
+        }
+        
+        function saveSettings(event) {
+            event.preventDefault();
+            
+            // Показываем состояние сохранения
+            saveSettingsBtn.textContent = 'Сохранение...';
+            saveSettingsBtn.classList.add('saving');
+            saveSettingsBtn.disabled = true;
+            
+            // Сохраняем основные настройки
+            settings.scheduleStart = document.getElementById('schedule-start').value;
+            settings.scheduleEnd = document.getElementById('schedule-end').value;
+            settings.semesterBreakDate = document.getElementById('semester-break-date').value;
+            settings.maxLessons = parseInt(document.getElementById('max-lessons').value);
+            
+            // Сохраняем каникулы
+            settings.holidays = [];
+            const holidayItems = holidaysContainer.querySelectorAll('.holiday-item');
+            
+            holidayItems.forEach(item => {
+                const startInput = item.querySelector('input[type="date"]:first-child');
+                const endInput = item.querySelector('input[type="date"]:last-child');
+                
+                if (startInput.value && endInput.value) {
+                    settings.holidays.push({
+                        start: startInput.value,
+                        end: endInput.value
+                    });
+                }
+            });
+            
+            // Сохраняем расписание первого полугодия
+            dayKeys.forEach(dayKey => {
+                settings.scheduleFirstHalf[dayKey] = [];
+                for (let i = 0; i < settings.maxLessons; i++) {
+                    const input = document.querySelector(`input[data-day="${dayKey}"][data-lesson="${i}"][data-semester="first"]`);
+                    const select = document.querySelector(`select[data-day="${dayKey}"][data-lesson="${i}"][data-semester="first"]`);
+                    
+                    if (input && input.value) {
+                        const subject = input.value.trim();
+                        
+                        // Если предмет есть в списке предметов с подгруппами и выбрана подгруппа
+                        if (subjectsWithSubgroups.hasOwnProperty(subject) && select && select.value) {
+                            settings.scheduleFirstHalf[dayKey].push({
+                                subject: subject,
+                                subgroup: parseInt(select.value)
+                            });
+                        } else {
+                            settings.scheduleFirstHalf[dayKey].push(subject);
+                        }
+                    }
+                }
+            });
+            
+            // Сохраняем расписание второго полугодия
+            dayKeys.forEach(dayKey => {
+                settings.scheduleSecondHalf[dayKey] = [];
+                for (let i = 0; i < settings.maxLessons; i++) {
+                    const input = document.querySelector(`input[data-day="${dayKey}"][data-lesson="${i}"][data-semester="second"]`);
+                    const select = document.querySelector(`select[data-day="${dayKey}"][data-lesson="${i}"][data-semester="second"]`);
+                    
+                    if (input && input.value) {
+                        const subject = input.value.trim();
+                        
+                        // Если предмет есть в списке предметов с подгруппами и выбрана подгруппа
+                        if (subjectsWithSubgroups.hasOwnProperty(subject) && select && select.value) {
+                            settings.scheduleSecondHalf[dayKey].push({
+                                subject: subject,
+                                subgroup: parseInt(select.value)
+                            });
+                        } else {
+                            settings.scheduleSecondHalf[dayKey].push(subject);
+                        }
+                    }
+                }
+            });
+            
+            // Сохраняем настройки в localStorage
+            localStorage.setItem('diarySettings', JSON.stringify(settings));
+            
+            // Показываем успешное сохранение
+            setTimeout(() => {
+                saveSettingsBtn.textContent = 'Настройки сохранены!';
+                saveSettingsBtn.classList.remove('saving');
+                saveSettingsBtn.classList.add('saved');
+                
+                setTimeout(() => {
+                    saveSettingsBtn.textContent = 'Сохранить настройки';
+                    saveSettingsBtn.classList.remove('saved');
+                    saveSettingsBtn.disabled = false;
+                    
+                    closeSettingsModal();
+                    renderWeek(); // Перерисовываем неделю с учетом новых настроек
+                }, 1000);
+            }, 500);
+        }
+        
+        // Функции для работы с темами
+        function toggleTheme() {
+            settings.theme = settings.theme === 'light' ? 'dark' : 'light';
+            applyTheme();
+            updateThemeButtonText();
+        }
+        
+        function updateThemeButtonText() {
+            themeToggle.textContent = settings.theme === 'light' ? 'Тёмная тема' : 'Светлая тема';
+        }
+        
+        function applyTheme() {
+            // Устанавливаем тему
+            document.body.className = `${settings.theme}-theme`;
+            
+            // Сохраняем настройки темы
+            localStorage.setItem('diarySettings', JSON.stringify(settings));
+        }
+        
+        // Функции для работы с localStorage
+        function loadSettings() {
+            const savedSettings = localStorage.getItem('diarySettings');
+            if (savedSettings) {
+                const parsedSettings = JSON.parse(savedSettings);
+                settings = { ...settings, ...parsedSettings };
+            }
+            
+            // Установка значений по умолчанию для дат, если они пустые
+            const currentYear = new Date().getFullYear();
+            if (!settings.scheduleStart) {
+                settings.scheduleStart = `${currentYear}-09-01`;
+            }
+            if (!settings.scheduleEnd) {
+                settings.scheduleEnd = `${currentYear+1}-05-31`;
+            }
+            if (!settings.semesterBreakDate) {
+                settings.semesterBreakDate = `${currentYear+1}-01-10`;
+            }
+            
+            // Обновляем текст кнопки темы
+            updateThemeButtonText();
+        }
+        
+        function saveHomework(key, homework) {
+            const homeworks = JSON.parse(localStorage.getItem('diaryHomeworks') || '{}');
+            homeworks[key] = homework;
+            localStorage.setItem('diaryHomeworks', JSON.stringify(homeworks));
+        }
+        
+        function loadHomework(key) {
+            const homeworks = JSON.parse(localStorage.getItem('diaryHomeworks') || '{}');
+            return homeworks[key];
+        }
+    </script>
+</body>
+</html>
