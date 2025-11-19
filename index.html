@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Онлайн дневник</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+</head>
+<body class="light-theme">
+    <div class="container">
+        <header>
+            <div class="header-top">
+                <h1>Онлайн дневник</h1>
+                <div class="header-controls">
+                    <button id="theme-toggle" class="theme-toggle">Тёмная тема</button>
+                    <button id="sync-btn" class="sync-btn">Синхронизировать</button>
+                </div>
+            </div>
+            <div class="nav-buttons">
+                <button id="prev-week">← Предыдущая неделя</button>
+                <button id="settings-btn">Настройки</button>
+                <button id="next-week">Следующая неделя →</button>
+            </div>
+        </header>
+        
+        <div class="week-display" id="week-range">
+            <!-- Здесь будет отображаться диапазон дат недели -->
+        </div>
+        
+        <div class="days-container" id="days-container">
+            <!-- Дни недели будут добавляться динамически -->
+        </div>
+        
+        <div class="sync-status" id="sync-status"></div>
+        
+        <footer class="app-info">
+            <p>Данные сохраняются в вашем браузере и синхронизируются через JSONBin</p>
+            <p>Использовано запросов: <span id="request-count">0</span>/1000 в этом месяце</p>
+        </footer>
+    </div>
+    
+    <!-- Модальное окно ввода пароля -->
+    <div class="modal" id="password-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Введите пароль</h2>
+                <span class="close" id="close-password">&times;</span>
+            </div>
+            <div class="password-prompt">
+                <p>Для доступа к настройкам введите мастер-пароль</p>
+                <input type="password" class="password-input" id="password-input" placeholder="Мастер-пароль">
+                <div class="password-error" id="password-error">Неверный пароль. Попробуйте снова.</div>
+                <button id="submit-password">Войти</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Модальное окно настроек -->
+    <div class="modal" id="settings-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Настройки дневника</h2>
+                <span class="close" id="close-settings">&times;</span>
+            </div>
+            
+            <div class="tabs">
+                <div class="tab active" data-tab="schedule">Расписание</div>
+                <div class="tab" data-tab="holidays">Каникулы</div>
+                <div class="tab" data-tab="general">Общие</div>
+                <div class="tab" data-tab="sync">Синхронизация</div>
+            </div>
+            
+            <form id="settings-form">
+                <!-- Вкладка расписания -->
+                <div class="tab-content active" id="schedule-tab">
+                    <div class="form-group">
+                        <label>Расписание на первое полугодие</label>
+                        <div id="schedule-first-half">
+                            <!-- Поля для расписания первого полугодия -->
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Расписание на второе полугодие</label>
+                        <div id="schedule-second-half">
+                            <!-- Поля для расписания второго полугодия -->
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="semester-break-date">Дата начала второго полугодия</label>
+                        <input type="date" id="semester-break-date">
+                    </div>
+                </div>
+                
+                <!-- Вкладка каникул -->
+                <div class="tab-content" id="holidays-tab">
+                    <div class="form-group">
+                        <label for="schedule-start">Начало учебного года</label>
+                        <input type="date" id="schedule-start">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="schedule-end">Конец учебного года</label>
+                        <input type="date" id="schedule-end">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Периоды каникул (используйте год начала учебного года для дат до августа включительно)</label>
+                        <div id="holidays-container">
+                            <!-- Поля для каникул будут добавляться динамически -->
+                        </div>
+                        <button type="button" class="add-btn" id="add-holiday">+ Добавить каникулы</button>
+                    </div>
+                </div>
+                
+                <!-- Общие настройки -->
+                <div class="tab-content" id="general-tab">
+                    <div class="form-group">
+                        <label for="max-lessons">Максимальное количество уроков в день</label>
+                        <input type="number" id="max-lessons" min="1" max="10" value="8">
+                    </div>
+                </div>
+                
+                <!-- Вкладка синхронизации -->
+                <div class="tab-content" id="sync-tab">
+                    <div class="form-group">
+                        <label for="sync-code">Код синхронизации</label>
+                        <input type="text" id="sync-code" placeholder="Введите код для синхронизации">
+                        <p class="help-text">Используйте один и тот же код на всех устройствах для синхронизации данных</p>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="auto-sync">Автоматическая синхронизация</label>
+                        <input type="checkbox" id="auto-sync" checked>
+                    </div>
+                    
+                    <button type="button" class="sync-btn" id="manual-sync">Синхронизировать сейчас</button>
+                    
+                    <div class="form-group">
+                        <label>Информация о JSONBin</label>
+                        <div class="info-box">
+                            <p>🔄 <strong>Бесплатный план:</strong> 1000 запросов/месяц</p>
+                            <p>📊 <strong>Использовано:</strong> <span id="jsonbin-request-count">0</span> запросов</p>
+                            <p>💡 <strong>Совет:</strong> Лимит обновляется 1 числа каждого месяца</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <button type="submit" class="save-btn" id="save-settings">Сохранить настройки</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script src="sync.js"></script>
+    
+    <script>
+        // Регистрация Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('service-worker.js')
+                    .then(function(registration) {
+                        console.log('ServiceWorker зарегистрирован');
+                    })
+                    .catch(function(error) {
+                        console.log('Ошибка регистрации ServiceWorker:', error);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>
