@@ -74,7 +74,7 @@ async function getRemoteData(syncCode) {
             const data = await response.json();
             return data.record;
         } else if (response.status === 404) {
-            return null; // Данные не найдены
+            return null;
         } else {
             throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
@@ -83,17 +83,10 @@ async function getRemoteData(syncCode) {
     }
 }
 
-// Функция сохранения данных на сервер
 async function saveRemoteData(syncCode, data) {
     try {
-        // Сначала проверяем, существует ли уже bin
-        let binId = syncCode;
-        let method = 'PUT';
-        let url = `${JSONBIN_API_URL}/${binId}`;
-        
-        // Пытаемся обновить существующий bin
-        const response = await fetch(url, {
-            method: method,
+        const response = await fetch(`${JSONBIN_API_URL}/${syncCode}`, {
+            method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
                 'X-Master-Key': JSONBIN_MASTER_KEY
