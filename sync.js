@@ -3,21 +3,18 @@
 
 // Конфигурация JSONBin
 const JSONBIN_API_URL = 'https://api.jsonbin.io/v3/b';
-// ЗАМЕНИТЕ НА ВАШ MASTER KEY С JSONBIN.IO
-const JSONBIN_MASTER_KEY = '$$2a$10$D65ibXCWZMetfiNll7WDgeZ3DaELi3Ax2Jz7jh9HIBSiQqUmdkpgG';
+const JSONBIN_MASTER_KEY = '$2a$10$D65ibXCWZMetfiNll7WDgeZ3DaELi3Ax2Jz7jh9HIBSiQqUmdkpgG';
+
+// ОБЩИЙ КОД СИНХРОНИЗАЦИИ ДЛЯ ВСЕГО КЛАССА
+const COMMON_SYNC_CODE = 'class_diary_2025';
 
 // Функция синхронизации данных
 async function syncData() {
-    if (!settings.syncCode) {
-        updateSyncStatus('error', 'Код синхронизации не установлен');
-        return;
-    }
-    
     updateSyncStatus('syncing', 'Синхронизация с JSONBin...');
     
     try {
         // Получаем данные с сервера
-        const remoteData = await getRemoteData(settings.syncCode);
+        const remoteData = await getRemoteData(COMMON_SYNC_CODE);
         
         if (remoteData) {
             // Слияние данных: локальные данные имеют приоритет
@@ -38,22 +35,22 @@ async function syncData() {
             renderWeek();
             
             // Отправляем объединенные данные обратно на сервер
-            await saveRemoteData(settings.syncCode, {
+            await saveRemoteData(COMMON_SYNC_CODE, {
                 settings: settings,
                 homeworks: mergedHomeworks,
                 lastSync: new Date().toISOString()
             });
             
-            updateSyncStatus('success', 'Данные синхронизированы с JSONBin');
+            updateSyncStatus('success', 'Данные синхронизированы');
         } else {
             // Если на сервере нет данных, сохраняем текущие
-            await saveRemoteData(settings.syncCode, {
+            await saveRemoteData(COMMON_SYNC_CODE, {
                 settings: settings,
                 homeworks: JSON.parse(localStorage.getItem('diaryHomeworks') || '{}'),
                 lastSync: new Date().toISOString()
             });
             
-            updateSyncStatus('success', 'Данные загружены на JSONBin');
+            updateSyncStatus('success', 'Данные загружены на сервер');
         }
         
         incrementRequestCount();
