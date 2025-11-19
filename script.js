@@ -669,9 +669,13 @@ function loadSettings() {
         settings.semesterBreakDate = `${currentYear+1}-01-10`;
     }
     
+    // АВТОМАТИЧЕСКАЯ СИНХРОНИЗАЦИЯ ПРИ ЗАГРУЗКЕ
+    setTimeout(() => {
+        syncData();
+    }, 1500);
+    
     updateThemeButtonText();
 }
-
 function saveSettingsToLocal() {
     localStorage.setItem('diarySettings', JSON.stringify(settings));
 }
